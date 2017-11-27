@@ -1,42 +1,56 @@
-var fs = require( 'fs' );
-var path = require( 'path' );
+var fs = require('fs');
+var path = require('path');
 // In newer Node.js versions where process is already global this isn't necessary.
-var process = require( "process" );
+var process = require("process");
+var git = require('git-rev-sync');
+var upath = require('upath');
 
-var moveFrom = "/home/mike/dev/node/sonar/moveme";
-var moveTo = "/home/mike/dev/node/sonar/tome"
+//var folderToTest = 'C:\\GIT\\Art';
+
+//console.log(git.long(upath.normalize(folderToTest)));
+
+//return;
+
+var rootFolder = "c:/GIT";
+
+
+processFolder(rootFolder);
+
+function processFolder(folder) {
+  // console.log('######################################################');
+  // console.log('processing ' + folder);
+  // console.log('######################################################');
 
 // Loop through all the files in the temp directory
-fs.readdir( moveFrom, function( err, files ) {
-  if( err ) {
-    console.error( "Could not list the directory.", err );
-    process.exit( 1 );
-  }
+  fs.readdir(folder, function (err, files) {
+    if (err) {
+      console.error("Could not list the directory.", err);
+      process.exit(1);
+    }
 
-  files.forEach( function( file, index ) {
-    // Make one pass and make the file complete
-    var fromPath = path.join( moveFrom, file );
-    var toPath = path.join( moveTo, file );
+    iterateFiles(files, folder)
 
-    fs.stat( fromPath, function( error, stat ) {
-      if( error ) {
-        console.error( "Error stating file.", error );
+  });
+}
+
+function iterateFiles(files, parentFolder) {
+  files.forEach(function (folder, index) {
+    // Make one pass and make the folder complete
+    var fromPath = path.join(parentFolder, folder);
+
+    fs.stat(fromPath, function (error, stat) {
+      if (error) {
+        console.error("Error stating folder.", error);
         return;
       }
-
-      if( stat.isFile() )
-        console.log( "'%s' is a file.", fromPath );
-      else if( stat.isDirectory() )
-        console.log( "'%s' is a directory.", fromPath );
-
-      fs.rename( fromPath, toPath, function( error ) {
-        if( error ) {
-          console.error( "File moving error.", error );
+      if (stat.isDirectory())
+        try {
+          var hash = git.long(upath.normalize(fromPath));
+          console.log('The hash for ' + fromPath + ' is ' + hash);
+        } catch (e){
+          //console.log(fromPath + ' is not a GIT repo');
+          processFolder(fromPath);
         }
-        else {
-          console.log( "Moved file '%s' to '%s'.", fromPath, toPath );
-        }
-      } );
-    } );
-  } );
-} );
+    });
+  });
+}
