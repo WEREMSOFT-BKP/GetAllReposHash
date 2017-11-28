@@ -62,5 +62,10 @@ function iterateFiles(files, parentFolder) {
 }
 
 function generateCheckoutScript(pCommand){
-  fs.appendFile('log.txt', pCommand + '\n');
+  var logger = fs.createWriteStream('log.txt', {
+    flags: 'a' // 'a' means appending (old data will be preserved)
+  });
+
+  logger.write(pCommand + '\n'); // append string to your file
+  logger.end();
 }
