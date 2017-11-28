@@ -11,15 +11,11 @@ var upath = require('upath');
 
 //return;
 
-var rootFolder = "c:/GIT";
-
+var rootFolder = "c:/GIT-0.0.3-TEC";
 
 processFolder(rootFolder);
 
 function processFolder(folder) {
-  // console.log('######################################################');
-  // console.log('processing ' + folder);
-  // console.log('######################################################');
 
 // Loop through all the files in the temp directory
   fs.readdir(folder, function (err, files) {
@@ -46,11 +42,25 @@ function iterateFiles(files, parentFolder) {
       if (stat.isDirectory())
         try {
           var hash = git.long(upath.normalize(fromPath));
-          console.log('The hash for ' + fromPath + ' is ' + hash);
+          var branch = git.branch(upath.normalize(fromPath));
+          const simpleGit = require('simple-git')(fromPath);
+          var remoteRepo = simpleGit.getRemotes();
+
+          generateCheckoutScript('cd ' + fromPath);
+          generateCheckoutScript('git reset --hard');
+          generateCheckoutScript('git clean -df');
+          generateCheckoutScript('git clone ' + branch + ' ' + hash);
+          console.log('Found GIT Repo');
+          console.log('Branch ' + branch);
+          console.log('Hash ' + hash);
         } catch (e){
           //console.log(fromPath + ' is not a GIT repo');
           processFolder(fromPath);
         }
     });
   });
+}
+
+function generateCheckoutScript(pCommand){
+  fs.appendFile('log.txt', pCommand + '\n');
 }

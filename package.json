@@ -19,6 +19,7 @@
   "homepage": "https://github.com/WEREMSOFT/GetAllReposHash#readme",
   "dependencies": {
     "git-rev-sync": "^1.9.1",
+    "simple-git": "^1.82.0",
     "upath": "^1.0.2"
   }
 }
